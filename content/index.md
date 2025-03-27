@@ -1,8 +1,9 @@
 ---
 title: Welcome to My Notes
+tags:
+  - intro
 ---
 
-This will be my note taking Areas
+From here on my journey to note writing takes a lead to somewhere unknow to vast land far away from normal brain. 
 
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+![[Pasted image 20250328003027.png]]
