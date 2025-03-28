@@ -7,6 +7,9 @@ SQL injection common occurrences location:
 - `SELECT` statements, within the table or column name
 - `SELECT` statements, within the `ORDER BY` clause
 
+
+
+
 `SELECT * FROM products WHERE category = 'Gifts' AND released = 1`
  Can add OR '1'='1' --
  `SELECT * FROM products WHERE category = 'Gifts' OR'1'='1' -- AND released = 1`
@@ -14,6 +17,10 @@ SQL injection common occurrences location:
 `Union` attacks allows us to execute one or more `SELECT` queries and append result to original query.
 
 `SELECT a, b FROM table1 UNION SELECT c, d FROM table2`
+
+Union attack requirements
+- Returns same number of columns.
+- Data types must be companiable.
 
 
 
@@ -24,5 +31,6 @@ OR '1'='1' --
 OR '1'='1' #
 
 UNION 
+UNION SELECT NULL-- 
 
 ```
