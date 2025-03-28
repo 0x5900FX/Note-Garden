@@ -6,3 +6,5 @@ SQL injection common occurrences location:
 - `INSERT` statements, within the inserted values
 - `SELECT` statements, within the table or column name
 - `SELECT` statements, within the `ORDER BY` clause
+
+
