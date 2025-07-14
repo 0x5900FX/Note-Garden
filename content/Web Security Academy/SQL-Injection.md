@@ -1,8 +1,4 @@
-# SQL Injection
-
-## Definition
-
-Web security vulnerability that allows interfering with database queries.
+A web security vulnerability that allows interfering with database queries.
 
 ## Common Locations
 
